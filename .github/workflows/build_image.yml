@@ -35,8 +35,10 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           context: .
-          platforms: linux/amd64
+          platforms: linux/amd64          
           push: true
+          cache-from: type=gha
+          cache-to: type=gha,mode=max        
           tags: ghcr.io/pykpkg47/tvheadend:amd64-latest
       - name: Build and push armv7
         uses: docker/build-push-action@v3
@@ -44,7 +46,9 @@ jobs:
           context: .
           file: ./Dockerfile.armhf
           platforms: linux/arm/v7
-          push: true
+          push: true          
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
           tags: ghcr.io/pykpkg47/tvheadend:arm32v7-latest
       - name: Build and push x64
         uses: docker/build-push-action@v3
@@ -53,10 +57,12 @@ jobs:
           file: ./Dockerfile.aarch64
           platforms: linux/arm64
           push: true
+          cache-from: type=gha
+          cache-to: type=gha,mode=max        
           tags: ghcr.io/pykpkg47/tvheadend:arm64v8-latest
           
       -  name: Push image to GHCR
          run: |
           docker ls 
-          docker manifest create ghcr.io/pykpkg47/tvheadend:latest ghcr.io/pykpkg47/tvheadend:arm64v8-latest ghcr.io/pykpkg47/tvheadend:arm32v7-latest ghcr.io/pykpkg47/tvheadend:amd64-latest
-          docker manifest push ghcr.io/pykpkg47/tvheadend:latest
+          #docker manifest create ghcr.io/pykpkg47/tvheadend:latest ghcr.io/pykpkg47/tvheadend:arm64v8-latest ghcr.io/pykpkg47/tvheadend:arm32v7-latest ghcr.io/pykpkg47/tvheadend:amd64-latest
+          #docker manifest push ghcr.io/pykpkg47/tvheadend:latest
