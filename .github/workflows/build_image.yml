@@ -20,9 +20,7 @@ jobs:
 
       # https://github.com/docker/setup-qemu-action
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v2
-        with:
-          platforms: linux/amd64,linux/arm/v7, linux/arm64      
+        uses: docker/setup-qemu-action@v2    
       # https://github.com/docker/setup-buildx-action
       - name: Set up Docker Buildx
         id: buildx
@@ -33,11 +31,26 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Build and push
+      - name: Build and push x64
         uses: docker/build-push-action@v3
         with:
           context: .
-          #platforms: linux/amd64,linux/arm/v7
+          platforms: linux/amd64
           push: true
-          tags: ghcr.io/pykpkg47/tvheadend:latest
-             
+          tags: ghcr.io/pykpkg47/tvheadend:amd64-latest
+      - name: Build and push armv7
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          file: {context}/Dockerfile.armhf
+          platforms: linux/arm/v7
+          push: true
+          tags: ghcr.io/pykpkg47/tvheadend:arm32v7-latest
+      - name: Build and push x64
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          file: {context}/Dockerfile.aarch64
+          platforms: linux/arm64
+          push: true
+          tags: ghcr.io/pykpkg47/tvheadend:arm64v8-latest
