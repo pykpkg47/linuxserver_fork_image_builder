@@ -36,7 +36,7 @@ jobs:
         with:
           context: .
           platforms: linux/amd64          
-          push: true
+          load: true
           cache-from: type=gha
           cache-to: type=gha,mode=max        
           tags: ghcr.io/pykpkg47/tvheadend:amd64-latest
@@ -46,7 +46,7 @@ jobs:
           context: .
           file: ./Dockerfile.armhf
           platforms: linux/arm/v7
-          push: true          
+          load: true          
           cache-from: type=gha
           cache-to: type=gha,mode=max
           tags: ghcr.io/pykpkg47/tvheadend:arm32v7-latest
@@ -56,12 +56,13 @@ jobs:
           context: .
           file: ./Dockerfile.aarch64
           platforms: linux/arm64
-          push: true
+          load: true
           cache-from: type=gha
           cache-to: type=gha,mode=max        
           tags: ghcr.io/pykpkg47/tvheadend:arm64v8-latest
           
-      -  name: Push image to GHCR
+      -  name: Push  multiarch image
          run: |
+          docker image ls     
           docker manifest create ghcr.io/pykpkg47/tvheadend:latest ghcr.io/pykpkg47/tvheadend:arm64v8-latest ghcr.io/pykpkg47/tvheadend:arm32v7-latest ghcr.io/pykpkg47/tvheadend:amd64-latest
           docker manifest push ghcr.io/pykpkg47/tvheadend:latest
