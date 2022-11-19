@@ -16,7 +16,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
         with:
-          repository: pykpkg47/docker-tvheadend_image_mod
+          repository: pykpkg47/docker-tvheadend
 
       # https://github.com/docker/setup-qemu-action
       - name: Set up QEMU
