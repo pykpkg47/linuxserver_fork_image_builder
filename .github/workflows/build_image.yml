@@ -58,5 +58,5 @@ jobs:
       -  name: Push image to GHCR
          run: |
           docker ls 
-          #docker manifest create ghcr.io/pykpkg47/tvheadend:latest ghcr.io/pykpkg47/tvheadend:arm64v8-latest ghcr.io/pykpkg47/tvheadend:arm32v7-latest ghcr.io/pykpkg47/tvheadend:amd64-latest
-          #docker manifest push ghcr.io/pykpkg47/tvheadend:latest
+          docker manifest create ghcr.io/pykpkg47/tvheadend:latest ghcr.io/pykpkg47/tvheadend:arm64v8-latest ghcr.io/pykpkg47/tvheadend:arm32v7-latest ghcr.io/pykpkg47/tvheadend:amd64-latest
+          docker manifest push ghcr.io/pykpkg47/tvheadend:latest
