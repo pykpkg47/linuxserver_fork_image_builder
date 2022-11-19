@@ -37,7 +37,6 @@ jobs:
           context: .
           platforms: linux/amd64
           push: true
-          load: true
           tags: ghcr.io/pykpkg47/tvheadend:amd64-latest
       - name: Build and push armv7
         uses: docker/build-push-action@v3
@@ -46,7 +45,6 @@ jobs:
           file: ./Dockerfile.armhf
           platforms: linux/arm/v7
           push: true
-          load: true
           tags: ghcr.io/pykpkg47/tvheadend:arm32v7-latest
       - name: Build and push x64
         uses: docker/build-push-action@v3
@@ -55,7 +53,6 @@ jobs:
           file: ./Dockerfile.aarch64
           platforms: linux/arm64
           push: true
-          load: true
           tags: ghcr.io/pykpkg47/tvheadend:arm64v8-latest
           
       -  name: Push image to GHCR
