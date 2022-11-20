@@ -69,8 +69,8 @@ jobs:
           tags: ghcr.io/pykpkg47/tvheadend:arm64v8-latest
           cache-from: type=registry,ref=ghcr.io/pykpkg47/tvheadend:arm64v8-latest-buildcache
           cache-to: type=registry,ref=ghcr.io/pykpkg47/tvheadend:arm64v8-latest-buildcache,mode=max
-      - name: ssh debug
-        uses: valeriangalliat/action-sshd-cloudflared@v1         
+      #- name: ssh debug
+      #  uses: valeriangalliat/action-sshd-cloudflared@v1         
       - name: Push  multiarch image
         run: |
           docker image ls     
