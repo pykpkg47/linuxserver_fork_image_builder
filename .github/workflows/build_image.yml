@@ -31,38 +31,48 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Enable experimental features for the Docker daemon and CLI
+        run: |
+          echo $'{\n  "experimental": true\n}' | sudo tee /etc/docker/daemon.json
+          mkdir -p ~/.docker
+          echo $'{\n  "experimental": "enabled"\n}' | sudo tee ~/.docker/config.json
+          sudo service docker restart
+          docker version -f '{{.Client.Experimental}}'
+          docker version -f '{{.Server.Experimental}}'
+          docker buildx version       
       - name: Build and push x64
         uses: docker/build-push-action@v3
         with:
           context: .
           platforms: linux/amd64          
-          load: true
-          cache-from: type=gha
-          cache-to: type=gha,mode=max        
+          push: true     
           tags: ghcr.io/pykpkg47/tvheadend:amd64-latest
+          cache-from: type=registry,ref=ghcr.io/pykpkg47/tvheadend:amd64-latest-buildcache
+          cache-to: type=registry,ref=ghcr.io/pykpkg47/tvheadend:amd64-latest-buildcache,mode=max
       - name: Build and push armv7
         uses: docker/build-push-action@v3
         with:
           context: .
           file: ./Dockerfile.armhf
           platforms: linux/arm/v7
-          load: true          
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          push: true          
           tags: ghcr.io/pykpkg47/tvheadend:arm32v7-latest
-      - name: Build and push x64
+          cache-from: type=registry,ref=ghcr.io/pykpkg47/tvheadend:arm32v7-latest-buildcache
+          cache-to: type=registry,ref=ghcr.io/pykpkg47/tvheadend:arm32v7-latest-buildcache,mode=max
+      - name: Build and push arm64v8
         uses: docker/build-push-action@v3
         with:
           context: .
           file: ./Dockerfile.aarch64
           platforms: linux/arm64
-          load: true
-          cache-from: type=gha
-          cache-to: type=gha,mode=max        
+          push: true        
           tags: ghcr.io/pykpkg47/tvheadend:arm64v8-latest
-          
-      -  name: Push  multiarch image
-         run: |
+          cache-from: type=registry,ref=ghcr.io/pykpkg47/tvheadend:arm64v8-latest-buildcache
+          cache-to: type=registry,ref=ghcr.io/pykpkg47/tvheadend:arm64v8-latest-buildcache,mode=max
+      - name: ssh debug
+      - uses: valeriangalliat/action-sshd-cloudflared@v1         
+      - name: Push  multiarch image
+        run: |
           docker image ls     
           docker manifest create ghcr.io/pykpkg47/tvheadend:latest ghcr.io/pykpkg47/tvheadend:arm64v8-latest ghcr.io/pykpkg47/tvheadend:arm32v7-latest ghcr.io/pykpkg47/tvheadend:amd64-latest
           docker manifest push ghcr.io/pykpkg47/tvheadend:latest
