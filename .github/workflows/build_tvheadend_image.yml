@@ -1,4 +1,4 @@
-name: Build tvheadend dockerimage mod
+name: Build tvheadend image 
 
 # Controls when the workflow will run
 on:
@@ -7,6 +7,9 @@ on:
 # permissions are needed if pushing to ghcr.io
 permissions: 
   packages: write
+
+env:
+  TVHEADEND_COMMIT: 470f02fb3f00d3f88e61303cd5db7ec303d0145d
 
 jobs:
   build:
@@ -39,7 +42,8 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}       
+          password: ${{ secrets.GITHUB_TOKEN }}    
+             
       - name: Build and push x64
         uses: docker/build-push-action@v3
         with:
@@ -47,30 +51,37 @@ jobs:
           platforms: linux/amd64          
           push: true     
           tags: ghcr.io/pykpkg47/tvheadend:amd64-latest
+          build-args: |
+              TVHEADEND_COMMIT=${{ env.TVHEADEND_COMMIT  }}
           cache-from: type=registry,ref=ghcr.io/pykpkg47/tvheadend:amd64-latest-buildcache
           cache-to: type=registry,ref=ghcr.io/pykpkg47/tvheadend:amd64-latest-buildcache,mode=max
+
       - name: Build and push armv7
         uses: docker/build-push-action@v3
         with:
           context: .
           file: ./Dockerfile.armhf
           platforms: linux/arm/v7
-          push: true          
+          push: true
+          build-args: |
+              TVHEADEND_COMMIT=${{ env.TVHEADEND_COMMIT  }}          
           tags: ghcr.io/pykpkg47/tvheadend:arm32v7-latest
           cache-from: type=registry,ref=ghcr.io/pykpkg47/tvheadend:arm32v7-latest-buildcache
           cache-to: type=registry,ref=ghcr.io/pykpkg47/tvheadend:arm32v7-latest-buildcache,mode=max
+
       - name: Build and push arm64v8
         uses: docker/build-push-action@v3
         with:
           context: .
           file: ./Dockerfile.aarch64
           platforms: linux/arm64
-          push: true        
+          push: true
+          build-args: |
+              TVHEADEND_COMMIT=${{ env.TVHEADEND_COMMIT  }}        
           tags: ghcr.io/pykpkg47/tvheadend:arm64v8-latest
           cache-from: type=registry,ref=ghcr.io/pykpkg47/tvheadend:arm64v8-latest-buildcache
           cache-to: type=registry,ref=ghcr.io/pykpkg47/tvheadend:arm64v8-latest-buildcache,mode=max
-      #- name: ssh debug
-      #  uses: valeriangalliat/action-sshd-cloudflared@v1         
+
       - name: Push  multiarch image
         run: |
           docker image ls     
