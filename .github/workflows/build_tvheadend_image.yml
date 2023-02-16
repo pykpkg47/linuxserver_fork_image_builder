@@ -20,6 +20,7 @@ jobs:
         uses: actions/checkout@v3
         with:
           repository: pykpkg47/docker-tvheadend
+          ref: custom_libdvbcsa
 
       # https://github.com/docker/setup-qemu-action
       - name: Set up QEMU
@@ -27,16 +28,7 @@ jobs:
       # https://github.com/docker/setup-buildx-action
       - name: Set up Docker Buildx
         id: buildx
-        uses: docker/setup-buildx-action@v2  
-      - name: Enable experimental features for the Docker daemon and CLI
-        run: |
-          echo $'{\n  "experimental": true\n}' | sudo tee /etc/docker/daemon.json
-          mkdir -p ~/.docker
-          echo $'{\n  "experimental": "enabled"\n}' | sudo tee ~/.docker/config.json
-          sudo service docker restart
-          docker version -f '{{.Client.Experimental}}'
-          docker version -f '{{.Server.Experimental}}'
-          docker buildx version        
+        uses: docker/setup-buildx-action@v2        
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v2
         with:
@@ -80,10 +72,12 @@ jobs:
               TVHEADEND_COMMIT=${{ env.TVHEADEND_COMMIT  }}        
           tags: ghcr.io/pykpkg47/tvheadend:arm64v8-latest
           cache-from: type=registry,ref=ghcr.io/pykpkg47/tvheadend:arm64v8-latest-buildcache
-          cache-to: type=registry,ref=ghcr.io/pykpkg47/tvheadend:arm64v8-latest-buildcache,mode=max
-
+          cache-to: type=registry,ref=ghcr.io/pykpkg47/tvheadend:arm64v8-latest-buildcache,mode=max 
       - name: Push  multiarch image
-        run: |
-          docker image ls     
-          docker manifest create ghcr.io/pykpkg47/tvheadend:latest ghcr.io/pykpkg47/tvheadend:arm64v8-latest ghcr.io/pykpkg47/tvheadend:arm32v7-latest ghcr.io/pykpkg47/tvheadend:amd64-latest
-          docker manifest push ghcr.io/pykpkg47/tvheadend:latest
+        run: |     
+          #docker manifest create ghcr.io/pykpkg47/tvheadend:latest   
+          #docker manifest push ghcr.io/pykpkg47/tvheadend:latest
+          docker buildx imagetools create -t ghcr.io/pykpkg47/tvheadend:latest \
+                                             ghcr.io/pykpkg47/tvheadend:arm64v8-latest \
+                                             ghcr.io/pykpkg47/tvheadend:arm32v7-latest \
+                                             ghcr.io/pykpkg47/tvheadend:amd64-latest

@@ -1,0 +1,84 @@
+name: Build tvheadend_small image 
+
+# Controls when the workflow will run
+on:
+  workflow_dispatch
+
+# permissions are needed if pushing to ghcr.io
+permissions: 
+  packages: write
+
+env:
+  TVHEADEND_COMMIT: 470f02fb3f00d3f88e61303cd5db7ec303d0145d
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      # Get the repository's code
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          repository: pykpkg47/docker-tvheadend
+          ref: custom_small
+
+      # https://github.com/docker/setup-qemu-action
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2    
+      # https://github.com/docker/setup-buildx-action
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v2         
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}    
+             
+      - name: Build and push x64
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          platforms: linux/amd64          
+          push: true     
+          tags: ghcr.io/pykpkg47/tvheadend_small:amd64-latest
+          build-args: |  
+            TVHEADEND_COMMIT=${{ env.TVHEADEND_COMMIT }}
+          cache-from: type=registry,ref=ghcr.io/pykpkg47/tvheadend_small:amd64-latest-buildcache
+          cache-to: type=registry,ref=ghcr.io/pykpkg47/tvheadend_small:amd64-latest-buildcache,mode=max
+
+      - name: Build and push armv7
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          file: ./Dockerfile.armhf
+          platforms: linux/arm/v7
+          push: true
+          build-args: |
+            TVHEADEND_COMMIT=${{ env.TVHEADEND_COMMIT }}
+          tags: ghcr.io/pykpkg47/tvheadend_small:arm32v7-latest
+          cache-from: type=registry,ref=ghcr.io/pykpkg47/tvheadend_small:arm32v7-latest-buildcache
+          cache-to: type=registry,ref=ghcr.io/pykpkg47/tvheadend_small:arm32v7-latest-buildcache,mode=max
+
+      - name: Build and push arm64v8
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          file: ./Dockerfile.aarch64
+          platforms: linux/arm64
+          push: true
+          build-args: |
+            TVHEADEND_COMMIT=${{ env.TVHEADEND_COMMIT }}
+          tags: ghcr.io/pykpkg47/tvheadend_small:arm64v8-latest
+          cache-from: type=registry,ref=ghcr.io/pykpkg47/tvheadend_small:arm64v8-latest-buildcache
+          cache-to: type=registry,ref=ghcr.io/pykpkg47/tvheadend_small:arm64v8-latest-buildcache,mode=max
+      - name: Push  multiarch image
+        run: |    
+          docker manifest create ghcr.io/pykpkg47/tvheadend_small:latest ghcr.io/pykpkg47/tvheadend_small:arm64v8-latest ghcr.io/pykpkg47/tvheadend_small:arm32v7-latest ghcr.io/pykpkg47/tvheadend_small:amd64-latest
+          docker manifest push ghcr.io/pykpkg47/tvheadend_small:latest
+          #docker buildx imagetools create -t ghcr.io/pykpkg47/tvheadend_small:latest \
+          #                                   ghcr.io/pykpkg47/tvheadend_small:arm64v8-latest \
+          #                                   ghcr.io/pykpkg47/tvheadend_small:arm32v7-latest \
+          #                                   ghcr.io/pykpkg47/tvheadend_small:amd64-latest
+
