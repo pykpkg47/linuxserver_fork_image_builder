@@ -9,7 +9,7 @@ permissions:
   packages: write
 
 env:
-  TVHEADEND_COMMIT: 470f02fb3f00d3f88e61303cd5db7ec303d0145d
+  TVHEADEND_COMMIT: 39df64bb8e8888db0817e133b50b7f4823a69489
 
 jobs:
   build:
